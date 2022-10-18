@@ -1,0 +1,162 @@
+<script>
+// Production or preview - based on CUE environment param
+if ({{dl.environment}} == "prod") {
+  var isProd = true; 
+} else {
+  var isProd = false; 
+}
+  
+window._mhtracker = window._mhtracker || {};
+var tracker = window._mhtracker;
+tracker.initialized = tracker.initialized || {};
+tracker.config = tracker.config || {};
+tracker.config.heartbeatEnabled = true;
+tracker.initialized = tracker.initialized || {};
+  
+console.log({{var.glitr_object}});
+console.log({{var.glitr_object}}.view_endpoint);
+console.log({{var.glitr_object}}.heartbeat_endpoint);
+console.log({{var.glitr_object}}.scripturl);
+console.log({{var.glitr_object-scripturl}});
+  
+tracker.config.api = {{var.glitr_object}}.view_endpoint;
+tracker.config.viewApi = {{var.glitr_object}}.view_endpoint;
+tracker.config.heartbeatApi = {{var.glitr_object}}.heartbeat_endpoint;
+tracker.config.scriptUrl = {{var.glitr_object-scripturl}};
+tracker.config.debug = !isProd;
+  
+function glitr_pageview() {
+  console.log('%c GLiTR loaded ', 'background: #FF6A00; color: #FFFFFF');
+  
+  // get localstorage params
+  var glitr_params = localStorage.getItem('glitr');
+  var now = new Date().getTime();
+  
+  if (glitr_params == null) { // first visit, there's an empty localstorage
+    glitr = {
+      viewsequence: 1,
+      timestamp: now,
+      previousviewid: null,
+      previouspagetype: null,
+      sessionid: {{var.sessionid}},
+      previousurl: null,
+      referrer: {{dl.referrerhost}} || document.referrer
+    };
+  } else {  // object bestaat al, er is een vorige pagina
+    var glitr = JSON.parse(glitr_params);
+    var lasttime = parseInt(glitr.timestamp);
+    
+    if (now - lasttime > 30 * 60 * 1000) { // 30 min * 60 sec * 1000 ms, nieuwe sessie na 30 minuten. Object bestaat maar is oud
+      glitr.viewsequence = 1;
+      glitr.previousviewid = null;
+      glitr.previouspagetype = null;
+      glitr.sessionid = {{var.sessionid}};
+      glitr.previousurl = null;
+      glitr.referrer = {{dl.referrerhost}} || document.referrer;
+    } else { // doortellen, volgende pageview. Object bestaat en is nog actief en relevant
+      glitr.viewsequence = glitr.viewsequence + 1;
+      
+      if (sessionStorage.getItem('glitr-session') == null) { // bestaande bezoek zit in een nieuwe tab
+        glitr.referrer = {{dl.referrerhost}} || document.referrer; 
+      } 
+      
+    }
+  }
+  if (glitr.previousurl == "") { glitr.previousurl = null; }
+  if (glitr.referrer == "") { glitr.referrer = null; }
+  
+  window.glitr_viewid = {{var.viewid}}; // generates a new one on every call, gives error if not defined
+  
+  window._mhtracker.logView({
+    /*basic default specs. absolute minimum tracking set that much be added to every page. 
+      https://confluence.tmg.nl/pages/viewpage.action?spaceKey=DNM&title=DATA+l+Default+tracking+spec+l+View#DATAlDefaulttrackingspeclView-Trackingspecgroundrules*/
+    
+    brandcode: 'hub', //fixed value for now, to check with Vicky 
+    //commented out mapping cookieid: dl - clientid, // cookieid wordt ook gezet door de tracker maar bewust voor onze eigen value gekozen omdat deze persistent is
+    consentcookies: {{didomiPurposesConsent}}.match(/cookies/) ? true : false,  
+    consentcreateadsprofile: {{didomiPurposesConsent}}.match(/create_ads_profile/) ? true : false,
+    consentcreatecontentprofile: {{didomiPurposesConsent}}.match(/create_content_profile/) ? true : false,  
+    consentimproveproducts: {{didomiPurposesConsent}}.match(/improve_products/) ? true : false,    
+    consentmarketresearch: {{didomiPurposesConsent}}.match(/market_research/) ? true : false,      
+    consentmeasureadperformance: {{didomiPurposesConsent}}.match(/measure_ad_performance/) ? true : false,      
+    consentmeasurecontentperformance: {{didomiPurposesConsent}}.match(/measure_content_performance/) ? true : false,     
+    consentselectbasicads: {{didomiPurposesConsent}}.match(/select_basic_ads/) ? true : false,  
+    consentselectpersonalizedads: {{didomiPurposesConsent}}.match(/select_personalized_ads/) ? true : false,  
+    consentselectpersonalizedcontent: {{didomiPurposesConsent}}.match(/select_personalized_content/) ? true : false,              
+    consentsocialmedia: {{didomiPurposesConsent}}.match(/social_media/) ? true : false,  
+    environment: {{dl.environment}}, // dev, preview or prod
+    identityaccountid: {{var.identityaccountid}}, // SSO ID mag alleen meegestuurd worden bij juiste consent
+    isnewdataformat: true,
+    pagetitle: {{var.pagetitle}},
+    pageurl: {{_url}},
+    previousurl: glitr.previousurl,
+    viewid: glitr_viewid,
+    previousviewid: glitr.previousviewid,
+    referrer: glitr.referrer,
+    sessionid: glitr.sessionid,
+    subscriptionstatus: {{dl.subscriptionstatus}},
+    subscriptiontype: {{dl.subscriptiontype}},
+    viewsequence: glitr.viewsequence, 
+    application: "www",      
+      
+    /* in this section we identify all the properties with a specific business logic/ value per page type, they must be added to every page type. */   
+    accesswalltype: {{dl.accesswalltype}}, //indicates which login screen is shown none, plus or register    
+    accessloginshown: {{dl.accessloginshown}}, //  indicates is if login screen is shown, true or false. by default false at the moment
+    pagesecure: {{dl.pagesecure}}, 
+    pagetype: {{dl.pagetype}}, // Depending on what page you opened a specific pagetype is used
+    previouspagetype: glitr.previouspagetype,
+    
+    pagesectionname: {{dl.pagesectionname}},
+    
+    pagesectiontrees: {{dl.pagesectiontrees}},  
+
+    /* article property */   
+    articleauthor: ({{dl.articleauthor}} == "" ? null : {{dl.articleauthor}}),
+    articlebodycharactercount: ({{dl.articlebodycharactercount}} == "" ? null : {{dl.articlebodycharactercount}}), // amount of characters an articlebody holds 
+    articlecontenttype: {{dl.articlecontenttype}}, //  The content type of the article, this can be article, video, photoset
+    articleid: ({{dl.articleid}} == false ? null : {{dl.articleid}}), // article id which from the article editing system + removed the quotes to make it a string
+    articlepublicationdateinutc: ({{dl.articlepublicationdateinutc}} == false ? null : {{dl.articlepublicationdateinutc}}), //example 2020-04-01T05:06:42.000Z  
+    articletitle: ({{dl.articletitle}} == false ? null : {{dl.articletitle}}), // Title of the article.
+    articletype: ({{dl.articletype}} == false ? null : {{dl.articletype}}),
+    articletaglist: {{dl.articletaglist}},
+    articlesource: {{dl.articlesource}}, // no description available
+
+    //continue here
+      
+    /* utm parameters */     
+    pageutmcampaign: {{var.utm_campaign}},
+    pageutmcontent: {{var.utm_content}},
+    pageutmmedium: {{var.utm_medium}},
+    pageutmsource: {{var.utm_source}},
+    pageutmterm: {{var.utm_term}}
+  }); 
+  
+  // Save all in localstorage
+  glitr.previousurl = {{_url}};
+  glitr.previouspagetype = {{dl.pagetype}};
+  glitr.previousviewid = glitr_viewid;
+  glitr.referrer = glitr.previousurl
+  glitr.timestamp = now;
+  localStorage.setItem('glitr', JSON.stringify(glitr));
+  sessionStorage.setItem('glitr-session', 'started');
+  
+  window._mhtracker.initView();
+  window._mhtracker.startHeartbeat();
+  window._mhtracker.initEvent();
+};
+  
+if (typeof window.glitr_script_added == "undefined")
+{
+  var head = document.getElementsByTagName('head')[0];
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src = {{var.glitr_object-scripturl}};
+  script.async = true;
+  script.addEventListener("load", function() { glitr_pageview() });
+  head.appendChild(script);
+  window.glitr_script_added = true;
+} else {
+  if (typeof _mhtracker.resetHeartbeat == "function") { _mhtracker.resetHeartbeat(); }
+  glitr_pageview();
+}
+</script>
