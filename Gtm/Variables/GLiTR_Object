@@ -1,83 +1,103 @@
 // Determine the GLiTR endpoint and script url based on the environment and entity/brand
-
-function (){
-  // Config object holds all the endpoint for entities & environments
-  var config = {
-    "prod": {
-      "mhbe": { "view_endpoint": "", "heartbeat_endpoint": "", "scripturl": ""},
-      "mhnl": { "view_endpoint": "", "heartbeat_endpoint": "", "scripturl": ""},
-      "mhie_indo": { "view_endpoint": "", "heartbeat_endpoint": "", "scripturl": ""},
-      "mhie": { "view_endpoint": "", "heartbeat_endpoint": "", "scripturl": ""},
-      "mhlu": { "view_endpoint": "", "heartbeat_endpoint": "", "scripturl": ""},
-      "mhaa": { "view_endpoint": "", "heartbeat_endpoint": "", "scripturl": ""},
-    },
-    "preview": {
-      "mhbe": { "view_endpoint": "//preview.mhtr.be", "heartbeat_endpoint": "//previewh.mhtr.be", "scripturl": "https://preview.mhtr.be/public/tr/tracker.min.js"},
-      "mhnl": { "view_endpoint": "//preview-tmg.mhtr.be/next", "heartbeat_endpoint": "//previewh-tmg.mhtr.be/next", "scripturl": "https://preview-tmg.mhtr.be/public/tr/tracker.min.js"},
-      "mhie_indo": { "view_endpoint": "//preview-inm.mhtr.be", "heartbeat_endpoint": "//previewh-inm.mhtr.be", "scripturl": "https://preview-inm.mhtr.be/public/tr/tracker.min.js"},
-      "mhie": { "view_endpoint": "//preview-inm.mhtr.be/next", "heartbeat_endpoint": "//previewh-inm.mhtr.be/next", "scripturl": "https://preview-inm.mhtr.be/public/tr/tracker.min.js"},
-      "mhlu": { "view_endpoint": "//preview-mhlu.mhtr.be/next", "heartbeat_endpoint": "//previewh-mhlu.mhtr.be/next", "scripturl": "https://preview-mhlu.mhtr.be/public/tr/tracker.min.js"},
-      "mhaa": { "view_endpoint": "", "heartbeat_endpoint": "", "scripturl": ""},
-    }
-  };
- 
-  // Determine the entity based on the hostname
-  var entity = null;
-  var environment = "preview";
-  switch ({{Page Hostname}}) {
-    case "preview.nieuwsblad.be":
-    case "preview.gva.be":
-    case "preview.hbvl.be":
-    case "preview.standaard.be":
-    case "preview.limburger.nl":
-      environment = "preview";
-      entity = "mhbe";
-      break; 
-    case "preview.noordhollandsdagblad.nl":
-    case "preview.gooieneemlander.nl":
-    case "preview.ymuidercourant.nl":
-    case "preview.leidschdagblad.nl":
-    case "preview.haarlemsdagblad.nl":
-    case "acceptance.telegraaf.nl":
-      environment = "preview";
-      entity = "mhnl";
-      break;  
-    case "preview.independent.ie":
-    case "aws-test.independent.ie":
-    case "aws-test2.independent.ie":
-      environment = "preview";
-      entity = "mhie_indo";
-      break;
-    case "preview.sundayworld.com":
-    case "preview.belfasttelegraph.co.uk":
-      environment = "preview";
-      entity = "mhie";
-      break;
-    case "preview.wort.lu":
-    case "test-cue.wort.lu":
-      environment = "preview";
-      entity = "mhlu";
-      break;  
-    default:
-      environment = "preview";
-      entity = null;
-      break;
-  }
-  
-  if (environment === "prod") {
-    // Production   
-  
-  
-  }
-  else {
-    // Preview
-    var details = config[environment][entity];
+function(){
+    var hostname = {{ Page Hostname }};
+    var entity = null;
+    var environment = null;
     
-    return details;
+    // Config object holds all the endpoint for entities & environments
+    var config = {
+      "prod": {
+        "mhbe": { "view_endpoint":       "//prod.mhtr.be",           "heartbeat_endpoint": "//prodh.mhtr.be",            "scripturl": "https://prod.mhtr.be/public/tr/tracker.min.js"},
+        "mhnl": { "view_endpoint":       "//prod-tmg.mhtr.be/next",  "heartbeat_endpoint": "//prodh-tmg.mhtr.be/next",   "scripturl": "https://prod-tmg.mhtr.be/public/tr/tracker.min.js"},
+        "mhie_indo": { "view_endpoint":  "//prod-inm.mhtr.be",       "heartbeat_endpoint": "//prodh-inm.mhtr.be",        "scripturl": "https://prod-inm.mhtr.be/public/tr/tracker.min.js"},
+        "mhie": { "view_endpoint":       "//prod-inm.mhtr.be/next",  "heartbeat_endpoint": "//prodh-inm.mhtr.be/next",   "scripturl": "https://prod-inm.mhtr.be/public/tr/tracker.min.js"},
+        "mhlu": { "view_endpoint":       "//prod-mhlu.mhtr.be/next", "heartbeat_endpoint": "//prodh-mhlu.mhtr.be/next",  "scripturl": "https://prod-mhlu.mhtr.be/public/tr/tracker.min.js"},
+        "mhaa": { "view_endpoint":       "",                         "heartbeat_endpoint": "",                           "scripturl": ""},
+      },
+      "preview": {
+        "mhbe": { "view_endpoint":       "//preview.mhtr.be",           "heartbeat_endpoint": "//previewh.mhtr.be",           "scripturl": "https://preview.mhtr.be/public/tr/tracker.min.js"},
+        "mhnl": { "view_endpoint":       "//preview-tmg.mhtr.be/next",  "heartbeat_endpoint": "//previewh-tmg.mhtr.be/next",  "scripturl": "https://preview-tmg.mhtr.be/public/tr/tracker.min.js"},
+        "mhie_indo": { "view_endpoint":  "//preview-inm.mhtr.be",       "heartbeat_endpoint": "//previewh-inm.mhtr.be",       "scripturl": "https://preview-inm.mhtr.be/public/tr/tracker.min.js"},
+        "mhie": { "view_endpoint":       "//preview-inm.mhtr.be/next",  "heartbeat_endpoint": "//previewh-inm.mhtr.be/next",  "scripturl": "https://preview-inm.mhtr.be/public/tr/tracker.min.js"},
+        "mhlu": { "view_endpoint":       "//preview-mhlu.mhtr.be/next", "heartbeat_endpoint": "//previewh-mhlu.mhtr.be/next", "scripturl": "https://preview-mhlu.mhtr.be/public/tr/tracker.min.js"},
+        "mhaa": { "view_endpoint":       "",                            "heartbeat_endpoint": "",                             "scripturl": ""},
+      }
+    };
    
-  
-    // Put in glitr_object for use in other tags
+    // Determine the entity based on the hostname
+    switch (hostname) {
+      // PRODUCTION
+      case "www.nieuwsblad.be":
+      case "www.gva.be":
+      case "www.hbvl.be":
+      case "www.standaard.be":
+      case "www.limburger.nl":
+        environment = "prod";
+        entity = "mhbe";
+        break;
+      case "www.noordhollandsdagblad.nl":
+      case "www.gooieneemlander.nl":
+      case "www.ymuidercourant.nl":
+      case "www.leidschdagblad.nl":
+      case "www.haarlemsdagblad.nl":
+      case "www.telegraaf.nl":
+        environment = "prod";
+        entity = "mhnl";
+        break;  
+      case "www.independent.ie":
+        environment = "prod";
+        entity = "mhie_indo";
+        break;
+      case "www.sundayworld.com":
+      case "www.belfasttelegraph.co.uk":
+        environment = "prod";
+        entity = "mhie";
+        break;
+      case "www.wort.lu":
+        environment = "prod";
+        entity = "mhlu";
+        break;  
+      // PREVIEW
+      case "preview.nieuwsblad.be":
+      case "preview.gva.be":
+      case "preview.hbvl.be":
+      case "preview.standaard.be":
+      case "preview.limburger.nl":
+        environment = "preview";
+        entity = "mhbe";
+        break; 
+      case "preview.noordhollandsdagblad.nl":
+      case "preview.gooieneemlander.nl":
+      case "preview.ymuidercourant.nl":
+      case "preview.leidschdagblad.nl":
+      case "preview.haarlemsdagblad.nl":
+      case "acceptance.telegraaf.nl":
+        environment = "preview";
+        entity = "mhnl";
+        break;  
+      case "preview.independent.ie":
+      case "aws-test.independent.ie":
+      case "aws-test2.independent.ie":
+        environment = "preview";
+        entity = "mhie_indo";
+        break;
+      case "preview.sundayworld.com":
+      case "preview.belfasttelegraph.co.uk":
+        environment = "preview";
+        entity = "mhie";
+        break;
+      case "preview.wort.lu":
+      case "test-cue.wort.lu":
+        environment = "preview";
+        entity = "mhlu";
+        break;  
+      default:
+        environment = null;
+        entity = null;
+        break;
+    }
+    
+    // Retrieve the correct endpoint & scripturl based on the environment & entity
+    var details = config[environment][entity];
     return details;   
-  
-  }
-}
+  }  
