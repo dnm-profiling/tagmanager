@@ -1,0 +1,83 @@
+// Determine the GLiTR endpoint and script url based on the environment and entity/brand
+
+function (){
+  // Config object holds all the endpoint for entities & environments
+  var config = {
+    "prod": {
+      "mhbe": { "view_endpoint": "", "heartbeat_endpoint": "", "scripturl": ""},
+      "mhnl": { "view_endpoint": "", "heartbeat_endpoint": "", "scripturl": ""},
+      "mhie_indo": { "view_endpoint": "", "heartbeat_endpoint": "", "scripturl": ""},
+      "mhie": { "view_endpoint": "", "heartbeat_endpoint": "", "scripturl": ""},
+      "mhlu": { "view_endpoint": "", "heartbeat_endpoint": "", "scripturl": ""},
+      "mhaa": { "view_endpoint": "", "heartbeat_endpoint": "", "scripturl": ""},
+    },
+    "preview": {
+      "mhbe": { "view_endpoint": "//preview.mhtr.be", "heartbeat_endpoint": "//previewh.mhtr.be", "scripturl": "https://preview.mhtr.be/public/tr/tracker.min.js"},
+      "mhnl": { "view_endpoint": "//preview-tmg.mhtr.be/next", "heartbeat_endpoint": "//previewh-tmg.mhtr.be/next", "scripturl": "https://preview-tmg.mhtr.be/public/tr/tracker.min.js"},
+      "mhie_indo": { "view_endpoint": "//preview-inm.mhtr.be", "heartbeat_endpoint": "//previewh-inm.mhtr.be", "scripturl": "https://preview-inm.mhtr.be/public/tr/tracker.min.js"},
+      "mhie": { "view_endpoint": "//preview-inm.mhtr.be/next", "heartbeat_endpoint": "//previewh-inm.mhtr.be/next", "scripturl": "https://preview-inm.mhtr.be/public/tr/tracker.min.js"},
+      "mhlu": { "view_endpoint": "//preview-mhlu.mhtr.be/next", "heartbeat_endpoint": "//previewh-mhlu.mhtr.be/next", "scripturl": "https://preview-mhlu.mhtr.be/public/tr/tracker.min.js"},
+      "mhaa": { "view_endpoint": "", "heartbeat_endpoint": "", "scripturl": ""},
+    }
+  };
+ 
+  // Determine the entity based on the hostname
+  var entity = null;
+  var environment = "preview";
+  switch ({{Page Hostname}}) {
+    case "preview.nieuwsblad.be":
+    case "preview.gva.be":
+    case "preview.hbvl.be":
+    case "preview.standaard.be":
+    case "preview.limburger.nl":
+      environment = "preview";
+      entity = "mhbe";
+      break; 
+    case "preview.noordhollandsdagblad.nl":
+    case "preview.gooieneemlander.nl":
+    case "preview.ymuidercourant.nl":
+    case "preview.leidschdagblad.nl":
+    case "preview.haarlemsdagblad.nl":
+    case "acceptance.telegraaf.nl":
+      environment = "preview";
+      entity = "mhnl";
+      break;  
+    case "preview.independent.ie":
+    case "aws-test.independent.ie":
+    case "aws-test2.independent.ie":
+      environment = "preview";
+      entity = "mhie_indo";
+      break;
+    case "preview.sundayworld.com":
+    case "preview.belfasttelegraph.co.uk":
+      environment = "preview";
+      entity = "mhie";
+      break;
+    case "preview.wort.lu":
+    case "test-cue.wort.lu":
+      environment = "preview";
+      entity = "mhlu";
+      break;  
+    default:
+      environment = "preview";
+      entity = null;
+      break;
+  }
+  
+  if (environment === "prod") {
+    // Production   
+  
+  
+  }
+  else {
+    // Preview
+    var details = config[environment][entity];
+    
+    return details;
+   
+  
+    // Put in glitr_object for use in other tags
+    return details;   
+  
+  }
+}
