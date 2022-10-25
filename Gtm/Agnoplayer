@@ -1,0 +1,130 @@
+function receiveIVVIMessage(event) {
+
+  var data = event.data.data;
+  var videoId = event.data.videoId;
+
+    // You can use whitelist to track only events you are interested in
+    var eventsWhitelist = [];
+    //   if (videoId && eventsWhitelist.some(function (e) { return data.type.match(e) })) {
+  
+    if (videoId) {
+        var url = window.location !== window.parent.location
+            ? document.referrer
+            : window.location.href;
+        var canonurl = document.querySelector("link[rel='canonical']");
+
+        var analytics_data = {
+            event: 'video-event',
+            eventCategory: data.eventCategory,
+            eventAction: data.type,
+            eventLabel: canonurl ? canonurl.href : url,
+            videoID: videoId,
+            videoDuration: data.duration,
+            videoTitle: data.title,
+            videoSpotXID: data.spotxid,
+            videoDateCreated: data.dateCreated,
+            videoAccount: data.account,
+            videoErrorDesciption: data.descriptionMessage,
+            videoCategory: data.videoCategory,
+            videoTags: data.videoTags,
+            videoFormat: data.videoFormat,
+            videoAdTag: data.descriptionAdTag,
+            videoPlayerName: data.brand
+        };       
+        analytics_data.videoAccount = MapAccount(analytics_data.videoAccount);
+
+        var trackData = {
+            event: analytics_data.event,
+            event_category: analytics_data.eventCategory,
+            event_action: analytics_data.eventAction,
+            event_label: analytics_data.eventLabel,
+            video_id: analytics_data.videoID || 'not set',
+            video_duration: analytics_data.videoDuration || 'not set',
+            video_title: analytics_data.videoTitle || 'not set',
+            video_spotxid: analytics_data.videoSpotXID || 'not set',
+            video_datecreated: analytics_data.videoDateCreated || 'not set',
+            video_account: analytics_data.videoAccount || 'not set',
+            videoplayerbrandname: analytics_data.videoPlayerName || 'not set'
+        };
+
+        dataLayer.push(trackData);
+    }
+}
+
+function MapAccount(streamoneId) {
+  var name = 'Mediahuis';
+
+  switch (streamoneId) {
+    case 'JIJgfIEK1MQE':
+      name = 'ATV';
+      break;
+    case 'JLYpfMwK3Ewk':
+      name = 'TVL';
+      break;
+    case 'tqIhfOEY3U0A':
+      name = 'TVO';
+      break;
+    case 'pLZoWOCK3VYk':
+      name = 'Evenaar';
+      break;
+    case 'pAJpWcgalA8g':
+      name = 'ROB';
+      break;
+    case 'tjZpfa2I1Ack':
+      name = 'GVA';
+      break;
+    case 'tBRoXcgYlBUE': {
+      if (
+        window.MEDIAHUIS &&
+        window.MEDIAHUIS.config &&
+        window.MEDIAHUIS.config.page_mainsubsectionname === 'sportwereld'
+      ) {
+        name = 'SW';
+      } else {
+        name = 'NB';
+      }
+      break;
+    }
+    case 'JiQgeYAanU0A':
+      name = 'DS';
+      break;
+    case 'NjJhXY2Y3V4E':
+      name = 'HBVL';
+      break;
+    case 'irBhqciZoBQU':
+      name = 'DL';
+      break;
+    case 'NhZpWaEI1UQA':
+      name = 'JANI';
+      break;
+    case 'JoYpeYwanBwA':
+      name = 'MadeIn';
+      break;
+    case 'tJIhWYGIlR8A':
+      name = 'Gezondheid.be';
+      break;
+    case 'NaQgfeCY3IQE':
+      name = 'near-live';
+      break;
+    case 'J7BoWekInJ0k':
+      name = 'JPL';
+      break;
+    case 'p4QgWcgYlMYA':
+      name = 'DNM';
+      break;
+    case 'p7IpWYiIlc4g':
+      name = 'Test';
+      break;
+    case 'Kx1PKc':
+      name = 'TMG';
+      break;
+    case 'Ogxgpp7Chj-G':
+      name = 'RTV';
+      break;
+    default:
+      name = 'Mediahuis';
+      break;
+  }
+
+  return name;
+}

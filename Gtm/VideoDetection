@@ -1,0 +1,16 @@
+// <script>
+var iframes = document.getElementsByTagName("iframe");
+
+for (var i = 0; i < iframes.length; i++) {
+    // Agnoplayer
+  if (iframes[i].src.indexOf("/player/") > -1) {
+    window.addEventListener("message", receiveIVVIMessage, false);
+  }
+    // Youtube
+  else if (iframes[i].src.indexOf("/youtube/") > -1) {
+    window.addEventListener("message", youtubeMessage, false);
+  }
+  
+  
+}
+// </script>
