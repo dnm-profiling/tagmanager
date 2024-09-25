@@ -1,0 +1,124 @@
+
+function sentGlitrEvent(receivedData) {  
+  
+  console.log('receivedData is: ' + receivedData);
+  if (receivedData) {
+  console.log(' --- itemdescription : ' + receivedData.itemdescription);
+  } 
+ 
+  
+  // recommendation properties
+  var recommendations = {
+    recommendationrank:{{dl.recommendationrank}},
+    recommendationrequestid: {{dl.recommendationrequestid}},
+    recommendationsegmentgroup: {{dl.recommendationsegmentgroup}},
+    recommendationsource: {{dl.recommendationsource}},
+  };
+  
+  //GLiTR naming conventions 
+  var mediaCategory = {{dl.eventcategory}}
+  var mediaAction = {{dl.eventaction}}
+
+  if (mediaCategory == "podcast") { mediaCategory = "audio"; }
+  if ({{CJ - media ga4_eventname}} == "video_complete") { mediaAction = "ended"; } 
+    
+   // media properties
+  var media = {
+    fulllength: {{dl.media_duration}},
+    ismediaevent: 'true', 
+    mediaaccount: {{dl.media_account_id}},
+    mediabrand: {{dl.media_player_brand}},
+    mediaid: {{dl.media_asset_id}},
+    mediaowner: null,
+    mediapublicationdateinutc: {{dl.media_creation}},
+    mediatitle: {{dl.media_title}},
+  };
+  
+  var glitrobject = {};
+  
+  // Check if there is receivedData - in case the sendGlitrEvent was delayed
+  if (receivedData) {
+    glitrobject = receivedData;    
+  }
+  else {
+    glitrobject = {
+      accessloginshown:  {{dl.accessloginshown}},//  indicates is if login screen is shown, true or false. by default false at the moment
+      accesswalltype: {{dl.accesswalltype}}, //indicates which login screen is shown none, plus or register    
+      application: "www",  
+      articleauthor: ({{dl.articleauthor}} === "" ? null : {{dl.articleauthor}}),
+      articlebodycharactercount: ({{dl.articlebodycharactercount}} === "" ? null : {{dl.articlebodycharactercount}}), // amount of characters an articlebody holds 
+      articlecontenttype: {{dl.articlecontenttype}}, //  The content type of the article, this can be article, video, photoset
+      articleid: ({{dl.articleid}} === false ? null : {{dl.articleid}}), // article id which from the article editing system + removed the quotes to make it a string
+      articlepublicationdateinutc: ({{dl.articlepublicationdateinutc}} === false ? null : {{dl.articlepublicationdateinutc}}), //example 2020-04-01T05:06:42.000Z  
+      articlesource: {{dl.articlesource}}, // no description available
+      articletaglist: {{dl.articletaglist}},
+      articletitle: ({{dl.articletitle}} === false ? null : {{dl.articletitle}}), // Title of the article.
+      articletype: ({{dl.articletype}} === false ? null : {{dl.articletype}}), 
+      brandcode: {{dl.brandcode}},
+      canonicalurl:  {{dl.canonicalurl}} === false ? null : {{dl.canonicalurl}},                       
+      environment: {{dl.environment}}, // dev, preview or prod
+      eventaction: {{dl.eventaction}},
+      eventcategory: {{dl.eventcategory}},
+      eventlabel: {{dl.eventlabel}},  
+      identityaccountid: {{CJ - identityaccountid [with consent]}}, // SSO ID mag alleen meegestuurd worden bij juiste consent
+      isnewdataformat: true,  
+      itemdescription: ({{dl.itemdescription}} === false ? null : {{dl.itemdescription}}),
+      loginstatus: {{dl.loginstatus}},
+      outputid: ({{dl.outputid}} === "" ? null : {{dl.outputid}}),
+      pagesectionname: {{dl.pagesectionname}},
+      pagesectiontrees: {{dl.pagesectiontrees}},
+      pagesecure: {{dl.pagesecure}}, 
+      pagetitle: {{var.pagetitle}},
+      pagetype: {{dl.pagetype}}, // Depending on what page you opened a specific pagetype is used
+      pageur: {{_url}},     
+      subscriptionstatus: {{dl.subscriptionstatus}},
+      subscriptiontype: {{dl.subscriptiontype}},
+      utminternal: ({{dl.method}} === "" ? null : {{dl.method}}) // is being set by 'method' in the zephr dl push
+    }
+  }
+  
+
+   console.log('glitrobject is: ' + glitrobject);
+  if (glitrobject) {
+  console.log(' --- itemdescription : ' + glitrobject.itemdescription);
+  }
+  
+    // add Didomi parameters
+    Object.assign(glitrobject, {{CJ - GLiTR - Consent properties}});
+  
+    // add recommendation properties
+    if({{dl.eventcategory}} === 'personalisation'){
+      Object.assign(glitrobject, recommendations)
+    };
+  
+    // add media properties
+    if({{dl.eventcategory}} === 'video' || {{dl.eventcategory}} === 'podcast' || {{dl.eventcategory}} === 'live' || {{dl.eventcategory}} === 'audio'){
+      Object.assign(glitrobject, media)
+    };
+ 
+    // replace empty strings with null
+    glitrobject = {{CJ - GLiTR - clean_glitr_object}}(glitrobject);  
+  
+  
+  if (typeof glitr_pageview_fired == "boolean" && glitr_pageview_fired == true && typeof window._mhtracker == "object" && typeof window._mhtracker.logEvent == "function")
+  {
+    console.log('inside the sentGlitrEvent function');  
+          
+    var glitr_params = localStorage.getItem('glitr');
+    var glitr = JSON.parse(glitr_params);
+    
+    //get the viewId
+    var viewId = window._mhtracker.sharedState && window._mhtracker.sharedState.viewId;         
+    
+    glitrobject.sessionid = glitr.sessionid; //check this
+    glitrobject.viewid = viewId;
+    glitrobject.viewsequence=  glitr.viewsequence === JSON.parse(localStorage.getItem('glitr')).viewsequence ? glitr.viewsequence : JSON.parse(localStorage.getItem('glitr')).viewsequence;
+    
+    window._mhtracker.logEvent(glitrobject);
+  } else {
+    console.log('setTimeout glitrobject.itemdescription : ' + glitrobject.itemdescription);
+    
+    setTimeout(function() { sentGlitrEvent(glitrobject) }, 300);
+  }    
+  }
+  sentGlitrEvent();
